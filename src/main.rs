@@ -1,3 +1,4 @@
+use rand::prelude::*;
 use serde::{Serialize, Deserialize};
 use std::error::Error;
 use uwuifier::uwuify_str_sse;
@@ -11,7 +12,19 @@ struct Quote {
 
 impl Quote {
     async fn get_quote() -> Result<Self, Box<dyn Error>> {
-        let data = reqwest::get("https://animechan.vercel.app/api/random/anime?title=berserk")
+        let animes = vec![
+            "berserk",
+            "evangelion",
+            "serial%20experiments%20lain",
+            "monster"
+        ];
+
+        let mut rng = thread_rng();
+        let anime = animes.into_iter()
+            .choose(&mut rng)
+            .unwrap();
+
+        let data = reqwest::get(format!("https://animechan.vercel.app/api/random/anime?title={}", anime))
         .await?
         .text()
         .await?;
@@ -31,7 +44,14 @@ async fn main() {
         },
     };
 
-    let uwu_quote = uwuify_str_sse(quote.quote.as_str());
+    let uwu_quote = format!(
+        "{}\n\n         ~*~ {}, {} ~*~",
+        quote.quote,
+        quote.character,
+        quote.anime
+    );
 
-    println!("{}", uwu_quote);
+    let output = uwuify_str_sse(uwu_quote.as_str());
+
+    println!("{}", output);
 }
