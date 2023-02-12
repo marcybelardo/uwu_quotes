@@ -4,8 +4,8 @@ use uwu_quote_bot::output::output;
 
 #[tokio::main]  
 async fn main() {
-    let config = get_config().expect("Could not read configuration.");
-    let quote = match Quote::get_quote().await {
+    let settings = get_config().expect("Could not read configuration.");
+    let quote = match Quote::get_quote(settings).await {
         Ok(quote) => quote,
         Err(e) => {
             eprintln!("Failed to get quote: {:?}", e);

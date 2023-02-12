@@ -1,9 +1,9 @@
 use rand::prelude::*;
-use serde::{Serialize, Deserialize};
+use serde::Deserialize;
 use std::error::Error;
-use crate::configuration::Settings;
+use crate::configuration::Config;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct Quote {
     pub anime: String,
     pub character: String,
@@ -11,11 +11,12 @@ pub struct Quote {
 }
 
 impl Quote {
-    pub async fn get_quote(settings: Settings) -> Result<Self, Box<dyn Error>> {
+    pub async fn get_quote(config: Config) -> Result<Self, Box<dyn Error>> {
         let mut rng = thread_rng();
-        let anime = settings.animes.into_iter()
-            .choose(&mut rng)
-            .unwrap();
+        let anime = match config.anime.titles.into_iter().choose(&mut rng) {
+            Some(anime) => anime,
+            None => return Err("No anime found.".into()),
+        };
 
         let data = reqwest::get(format!("https://animechan.vercel.app/api/random/anime?title={}", anime))
             .await?
@@ -25,22 +26,5 @@ impl Quote {
         let quote: Self = serde_json::from_str(&data)?;
 
         Ok(quote)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    async fn check_if_requests_go_through() {
-        let settings = Settings {
-            animes: vec![
-            "berserk".to_string(),
-            "evangelion".to_string(),
-            "monster".to_string(),
-            ],
-        };
-
-        assert!(Quote::get_quote(settings).await.is_ok());
     }
 }

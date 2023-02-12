@@ -1,18 +1,24 @@
-#[derive(serde::Deserialize)]
-pub struct Settings {
-    pub animes: Vec<String>,
+use toml::de::Error;
+use serde::Deserialize;
+use std::fs;
+
+#[derive(Deserialize)]
+pub struct Config {
+    pub anime: Anime
 }
 
-pub fn get_config() -> Result<Settings, config::ConfigError> {
-    let mut settings = config::Config::default();
+#[derive(Deserialize)]
+pub struct Anime {
+    pub titles: Vec<String>,
+}
+
+pub fn get_config() -> Result<Config, Error> {
     let base_path = std::env::current_dir().expect("Failed to determine current directory.");
-    let config_directory = base_path.join("configuration");
+    let config_directory = base_path.join("configuration/anime.toml");
 
-    settings.merge(
-        config::File::from(
-            config_directory.join("anime")
-        ).required(true)
-   )?;
+    let config_text = fs::read_to_string(config_directory).expect("Failed to load configuration.");
 
-   settings.try_into()
+    let config: Config = toml::from_str(&config_text).expect("Failed to read TOML file.");
+
+    Ok(config)
 }
