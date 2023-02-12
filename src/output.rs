@@ -1,12 +1,12 @@
-use crate::request::Quote;
+use crate::request::Data;
 use uwuifier::uwuify_str_sse;
 
-pub fn output(quote: Quote) {
+pub fn output(data: Data) {
     let uwu_quote = format!(
         "{}\n\n         ~*~ {}, {} ~*~",
-        quote.quote,
-        quote.character,
-        quote.anime
+        data.quote,
+        data.character,
+        data.anime
     );
 
     println!(
