@@ -1,6 +1,6 @@
-use toml::de::Error;
 use serde::Deserialize;
 use std::fs;
+use std::error::Error;
 
 #[derive(Deserialize)]
 pub struct Config {
@@ -18,11 +18,11 @@ impl Anime {
     }
 }
 
-pub fn get_config() -> Result<Config, Error> {
-    let base_path = std::env::current_dir().expect("Failed to determine current directory.");
+pub fn get_config() -> Result<Config, Box<dyn Error>> {
+    let base_path = std::env::current_dir()?;
     let config_directory = base_path.join("configuration/anime.toml");
-    let config_text = fs::read_to_string(config_directory).expect("Failed to load configuration.");
-    let config: Config = toml::from_str(&config_text).expect("Failed to read TOML file.");
+    let config_text = fs::read_to_string(config_directory)?;
+    let config: Config = toml::from_str(&config_text)?;
 
     Ok(config)
 }
