@@ -1,10 +1,10 @@
-use serde::Deserialize;
 use std::fs;
+use serde::Deserialize;
 use std::error::Error;
 
 #[derive(Deserialize)]
 pub struct Config {
-    pub anime: Anime
+    pub anime: Anime,
 }
 
 #[derive(Deserialize)]
